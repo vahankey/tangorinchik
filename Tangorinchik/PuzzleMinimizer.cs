@@ -2,20 +2,19 @@ namespace Tangorinchik
 {
     public class PuzzleMinimizer
     {
-        private readonly int Size;
+        private readonly int Size = 6;
         private char[,] grid;
         private char[,] constraintsH;
         private char[,] constraintsV;
 
-        private Random _rand = new Random();
+        private Random rand = new Random();
         private bool GetRandomWithProbability(int x, int y)
         {
-            return _rand.Next(y) < x ? true : false;
+            return rand.Next(y) < x;
         }
         
         public PuzzleMinimizer(char[,] grid, char[,] h, char[,] v)
         {
-            this.Size = grid.GetLength(0);
             this.grid = (char[,])grid.Clone();
             this.constraintsH = (char[,])h.Clone();
             this.constraintsV = (char[,])v.Clone();
@@ -64,7 +63,6 @@ namespace Tangorinchik
                     var tempSolver = new TangoSolver(bestGrid, bestH, bestV);
                     if (!tempSolver.Solve())
                         bestV[i, j] = backup;
-
                 }
             }
 

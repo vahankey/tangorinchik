@@ -13,7 +13,8 @@ namespace Tangorinchik
                 var (constraintsH, constraintsV) = GenerateFullConstraints(fullGrid);
                 
                 var solver = new TangoSolver(fullGrid, constraintsH, constraintsV);
-                if (!solver.Solve()) continue;
+                if (!solver.Solve())
+                    continue;
                 
                 var minimizer = new PuzzleMinimizer(fullGrid, constraintsH, constraintsV);
                 var (minGrid, minH, minV) = minimizer.Minimize();
@@ -46,10 +47,7 @@ namespace Tangorinchik
                     if (FillGrid(grid, row, col + 1))
                         return true;
                 }
-
-                grid[row, col] = ' ';
             }
-
             return false;
         }
 
@@ -83,12 +81,12 @@ namespace Tangorinchik
             char[,] v = new char[Size - 1, Size];
 
             for (int i = 0; i < Size; i++)
-            for (int j = 0; j < Size - 1; j++)
-                h[i, j] = grid[i, j] == grid[i, j + 1] ? '=' : 'x';
+                for (int j = 0; j < Size - 1; j++)
+                    h[i, j] = grid[i, j] == grid[i, j + 1] ? '=' : 'x';
 
             for (int i = 0; i < Size - 1; i++)
-            for (int j = 0; j < Size; j++)
-                v[i, j] = grid[i, j] == grid[i + 1, j] ? '=' : 'x';
+                for (int j = 0; j < Size; j++)
+                    v[i, j] = grid[i, j] == grid[i + 1, j] ? '=' : 'x';
 
             return (h, v);
         }

@@ -1,3 +1,5 @@
+using System.Reflection.Metadata.Ecma335;
+
 namespace Tangorinchik
 {
     class TangoSolver
@@ -6,22 +8,15 @@ namespace Tangorinchik
         private char[,] grid = new char[Size, Size];
         private char[,] constraintsH;
         private char[,] constraintsV;
-        private char[,] solution = new char[Size, Size];
 
         public TangoSolver(char[,] inputGrid, char[,] hConstraints, char[,] vConstraints)
         {
-            // Copy input
             for (int i = 0; i < Size; i++)
-            for (int j = 0; j < Size; j++)
-                grid[i, j] = inputGrid[i, j];
+                for (int j = 0; j < Size; j++)
+                    grid[i, j] = inputGrid[i, j];
 
             constraintsH = hConstraints;
             constraintsV = vConstraints;
-        }
-
-        public char[,] GetSolution()
-        {
-            return solution;
         }
 
         public bool Solve(int row = 0, int col = 0)
@@ -29,18 +24,17 @@ namespace Tangorinchik
             if (row == Size)
             {
                 // Grid is fully filled
-                if (!IsValidGrid()) return false;
-                CloneGrid(solution);
-                return true;
+                return IsValidGrid();
             }
 
             var nextRow = row;
-            var nextCol = (col + 1) % Size;
-            if (nextCol == 0)
+            var nextCol = col + 1;
+            if (nextCol == Size)
             {
                 nextRow = row + 1;
+                nextCol = 0;
             }
-
+            
             var solutionCount = 0;
             foreach (char symbol in new char[] { 'X', 'O' })
             {
@@ -53,7 +47,6 @@ namespace Tangorinchik
                     }
                 }
             }
-
             return solutionCount == 1;
         }
 
@@ -156,22 +149,6 @@ namespace Tangorinchik
             }
 
             return true;
-        }
-
-        private char[,] CloneGrid()
-        {
-            char[,] copy = new char[Size, Size];
-            for (int i = 0; i < Size; i++)
-            for (int j = 0; j < Size; j++)
-                copy[i, j] = grid[i, j];
-            return copy;
-        }
-
-        private void CloneGrid(char[,] copy)
-        {
-            for (int i = 0; i < Size; i++)
-            for (int j = 0; j < Size; j++)
-                copy[i, j] = grid[i, j];
         }
     }
 }
