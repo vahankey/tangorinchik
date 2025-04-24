@@ -1,7 +1,7 @@
 // File: Game.cs
 using System;
 
-namespace TangoPuzzle
+namespace Tangorinchik
 {
     public class Game
     {

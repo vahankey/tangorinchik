@@ -1,7 +1,4 @@
-﻿// File: Program.cs
-using System;
-
-namespace TangoPuzzle
+﻿namespace Tangorinchik
 {
     class Program
     {
