@@ -1,25 +1,16 @@
-// File: Game.cs
-using System;
-
 namespace Tangorinchik
 {
     public class Game
     {
         private const int Size = 6;
-        private char[,] grid = new char[Size, Size];
+        private char[,] grid;
         private char[,] constraintsH;
         private char[,] constraintsV;
-        private char[,] solution;
-        private char[,] puzzle;
 
         public void Play()
         {
             var generator = new PuzzleGenerator();
-            (puzzle, solution, constraintsH, constraintsV) = generator.Generate();
-
-            for (int i = 0; i < Size; i++)
-                for (int j = 0; j < Size; j++)
-                    grid[i, j] = puzzle[i, j];
+            (grid, var solution, constraintsH, constraintsV) = generator.Generate();
 
             while (true)
             {
@@ -29,9 +20,9 @@ namespace Tangorinchik
 
                 Console.Write("Enter row (1-6), col (1-6), symbol (X/O): ");
                 var input = Console.ReadLine()?.Trim().ToUpper().Split();
-                if (input == null || input.Length != 3 ||
-                    !int.TryParse(input[0], out int row) ||
-                    !int.TryParse(input[1], out int col))
+                if (input == null || input.Length != 3
+                    || !int.TryParse(input[0], out int row)
+                    || !int.TryParse(input[1], out int col))
                 {
                     Console.WriteLine("Invalid input. Format: row col symbol");
                     Console.ReadKey();
@@ -54,21 +45,21 @@ namespace Tangorinchik
                     continue;
                 }
 
-                char old_sym = grid[row, col];
+                char oldSym = grid[row, col];
                 grid[row, col] = sym;
                 if (!IsValidMove(row, col))
                 {
                     Console.WriteLine("Invalid move.");
                     Console.ReadKey();
-                    grid[row, col] = old_sym;
+                    grid[row, col] = oldSym;
                     continue;
                 }
 
-                if (IsComplete())
+                if (IsComplete(solution))
                 {
                     Console.Clear();
                     PrintGrid();
-                    Console.WriteLine("\n🎉 Puzzle Solved!");
+                    Console.WriteLine("\nPuzzle Solved!");
                     break;
                 }
             }
@@ -132,11 +123,11 @@ namespace Tangorinchik
             return true;
         }
 
-        private bool IsComplete()
+        private bool IsComplete(char[,] solution)
         {
             for (int i = 0; i < Size; i++)
                 for (int j = 0; j < Size; j++)
-                    if (grid[i, j] == ' ')
+                    if (grid[i, j] != solution[i, j])
                         return false;
             return true;
         }
@@ -159,7 +150,7 @@ namespace Tangorinchik
                 {
                     Console.Write($"[{grid[i, j]}]");
                     if (j < Size - 1)
-                        Console.Write(constraintsH ? [i, j] != '\0' ? constraintsH[i, j] : ' ');
+                        Console.Write(constraintsH[i, j]);
                 }
                 Console.WriteLine();
                 
@@ -169,8 +160,7 @@ namespace Tangorinchik
                     Console.Write(" ");
                     for (var j = 0; j < Size; j++)
                     {
-                        var cv = constraintsV ? [i, j] != '\0' ? constraintsV[i, j] : ' ';
-                        Console.Write($"   {cv}");
+                        Console.Write($"   {constraintsV[i, j]}");
                     }
                     Console.WriteLine();
                 }
