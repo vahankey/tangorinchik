@@ -10,15 +10,16 @@ namespace TangoPuzzle
         private char[,] constraintsH;
         private char[,] constraintsV;
         private char[,] solution;
+        private char[,] puzzle;
 
         public void Play()
         {
             var generator = new PuzzleGenerator();
-            (solution, constraintsH, constraintsV) = generator.Generate();
+            (puzzle, solution, constraintsH, constraintsV) = generator.Generate();
 
             for (int i = 0; i < Size; i++)
                 for (int j = 0; j < Size; j++)
-                    grid[i, j] = '.';
+                    grid[i, j] = puzzle[i, j];
 
             while (true)
             {
@@ -26,7 +27,7 @@ namespace TangoPuzzle
                 Console.WriteLine("TANGO PUZZLE GAME");
                 PrintGrid();
 
-                Console.Write("Enter row (1-6), col (1-6), symbol (X/Y): ");
+                Console.Write("Enter row (1-6), col (1-6), symbol (X/O): ");
                 var input = Console.ReadLine()?.Trim().ToUpper().Split();
                 if (input == null || input.Length != 3 ||
                     !int.TryParse(input[0], out int row) ||
@@ -46,9 +47,9 @@ namespace TangoPuzzle
                 }
 
                 char sym = input[2][0];
-                if (sym != 'X' && sym != 'Y')
+                if (sym != 'X' && sym != 'O')
                 {
-                    Console.WriteLine("Symbol must be X or Y.");
+                    Console.WriteLine("Symbol must be X or O.");
                     Console.ReadKey();
                     continue;
                 }
@@ -89,7 +90,7 @@ namespace TangoPuzzle
                 }
             }
 
-            // Max 3 X/Y per row/col
+            // Max 3 X/O per row/col
             int rowCount = 0, colCount = 0;
             for (int i = 0; i < Size; i++)
             {
@@ -101,30 +102,30 @@ namespace TangoPuzzle
             // Constraint check
             if (col < Size - 1 && constraintsH[row, col] != '\0')
             {
-                if (constraintsH[row, col] == '=' && grid[row, col + 1] != '.' && grid[row, col + 1] != sym)
+                if (constraintsH[row, col] == '=' && grid[row, col + 1] != ' ' && grid[row, col + 1] != sym)
                     return false;
-                if (constraintsH[row, col] == 'x' && grid[row, col + 1] != '.' && grid[row, col + 1] == sym)
+                if (constraintsH[row, col] == 'x' && grid[row, col + 1] != ' ' && grid[row, col + 1] == sym)
                     return false;
             }
             if (col > 0 && constraintsH[row, col - 1] != '\0')
             {
-                if (constraintsH[row, col - 1] == '=' && grid[row, col - 1] != '.' && grid[row, col - 1] != sym)
+                if (constraintsH[row, col - 1] == '=' && grid[row, col - 1] != ' ' && grid[row, col - 1] != sym)
                     return false;
-                if (constraintsH[row, col - 1] == 'x' && grid[row, col - 1] != '.' && grid[row, col - 1] == sym)
+                if (constraintsH[row, col - 1] == 'x' && grid[row, col - 1] != ' ' && grid[row, col - 1] == sym)
                     return false;
             }
             if (row < Size - 1 && constraintsV[row, col] != '\0')
             {
-                if (constraintsV[row, col] == '=' && grid[row + 1, col] != '.' && grid[row + 1, col] != sym)
+                if (constraintsV[row, col] == '=' && grid[row + 1, col] != ' ' && grid[row + 1, col] != sym)
                     return false;
-                if (constraintsV[row, col] == 'x' && grid[row + 1, col] != '.' && grid[row + 1, col] == sym)
+                if (constraintsV[row, col] == 'x' && grid[row + 1, col] != ' ' && grid[row + 1, col] == sym)
                     return false;
             }
             if (row > 0 && constraintsV[row - 1, col] != '\0')
             {
-                if (constraintsV[row - 1, col] == '=' && grid[row - 1, col] != '.' && grid[row - 1, col] != sym)
+                if (constraintsV[row - 1, col] == '=' && grid[row - 1, col] != ' ' && grid[row - 1, col] != sym)
                     return false;
-                if (constraintsV[row - 1, col] == 'x' && grid[row - 1, col] != '.' && grid[row - 1, col] == sym)
+                if (constraintsV[row - 1, col] == 'x' && grid[row - 1, col] != ' ' && grid[row - 1, col] == sym)
                     return false;
             }
 
@@ -135,7 +136,7 @@ namespace TangoPuzzle
         {
             for (int i = 0; i < Size; i++)
                 for (int j = 0; j < Size; j++)
-                    if (grid[i, j] == '.')
+                    if (grid[i, j] == ' ')
                         return false;
             return true;
         }
@@ -145,18 +146,18 @@ namespace TangoPuzzle
             // Print column numbers
             Console.Write("  ");
             for (int j = 0; j < Size; j++)
-                Console.Write($" {j + 1}");
+                Console.Write($"  {j + 1} ");
             Console.WriteLine();
 
             for (int i = 0; i < Size; i++)
             {
                 // Print row number
-                Console.Write($"{i + 1}  ");
+                Console.Write($" {i + 1} ");
                 
                 // Print values and horizontal constraints of current row
                 for (int j = 0; j < Size; j++)
                 {
-                    Console.Write(grid[i, j]);
+                    Console.Write($"[{grid[i, j]}]");
                     if (j < Size - 1)
                         Console.Write(constraintsH ? [i, j] != '\0' ? constraintsH[i, j] : ' ');
                 }
@@ -165,11 +166,11 @@ namespace TangoPuzzle
                 // Print vertical constraints
                 if (i < Size - 1)
                 {
-                    Console.Write("   ");
-                    for (int j = 0; j < Size; j++)
+                    Console.Write(" ");
+                    for (var j = 0; j < Size; j++)
                     {
-                        Console.Write(constraintsV?[i, j] != '\0' ? constraintsV[i, j] : ' ');
-                        Console.Write(' ');
+                        var cv = constraintsV ? [i, j] != '\0' ? constraintsV[i, j] : ' ';
+                        Console.Write($"   {cv}");
                     }
                     Console.WriteLine();
                 }
