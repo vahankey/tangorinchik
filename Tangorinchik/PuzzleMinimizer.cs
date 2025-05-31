@@ -23,7 +23,7 @@ namespace Tangorinchik
         public (char[,], char[,], char[,]) Minimize()
         {
             var solver = new TangoSolver(grid, constraintsH, constraintsV);
-            if (!solver.Solve())
+            if (solver.Solve() != 1)
             {
                 throw new Exception("Puzzle must have exactly one solution to minimize.");
             }
@@ -50,15 +50,15 @@ namespace Tangorinchik
                     // Remove horizontal constraint
                     char backup = bestH[i, j];
                     bestH[i, j] = ' ';
-                    var tempSolver = new TangoSolver(bestGrid, bestH, bestV);
-                    if (!tempSolver.Solve())
+                    solver = new TangoSolver(bestGrid, bestH, bestV);
+                    if (solver.Solve() != 1)
                         bestH[i, j] = backup;
                     
                     // Remove vertical constraint
                     backup = bestV[j, i];
                     bestV[j, i] = ' ';
-                    tempSolver = new TangoSolver(bestGrid, bestH, bestV);
-                    if (!tempSolver.Solve())
+                    solver = new TangoSolver(bestGrid, bestH, bestV);
+                    if (solver.Solve() != 1)
                         bestV[j, i] = backup;
                 }
             }

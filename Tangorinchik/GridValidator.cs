@@ -37,7 +37,7 @@ public class GridValidator
     
     public bool IsPartialValid(int row, int col)
     {
-        if (grid[row, col] != 'X' && grid[row, col] != 'O')
+        if (grid[row, col] != 'C' && grid[row, col] != 'O')
         {
             return false;
         }
@@ -69,9 +69,9 @@ public class GridValidator
         int rowX = 0, rowO = 0, colX = 0, colO = 0;
         for (int i = 0; i < Size; i++)
         {
-            if (grid[row, i] == 'X') rowX++;
+            if (grid[row, i] == 'C') rowX++;
             if (grid[row, i] == 'O') rowO++;
-            if (grid[i, col] == 'X') colX++;
+            if (grid[i, col] == 'C') colX++;
             if (grid[i, col] == 'O') colO++;
         }
 

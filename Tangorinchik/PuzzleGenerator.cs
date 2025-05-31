@@ -13,7 +13,7 @@ namespace Tangorinchik
                 var (constraintsH, constraintsV) = GenerateFullConstraints(fullGrid);
                 
                 var solver = new TangoSolver(fullGrid, constraintsH, constraintsV);
-                if (!solver.Solve())
+                if (solver.Solve() != 1)
                     continue;
                 
                 var minimizer = new PuzzleMinimizer(fullGrid, constraintsH, constraintsV);
@@ -46,7 +46,7 @@ namespace Tangorinchik
 
             if (row == Size) return true;
 
-            var order = rand.Next(2) == 0 ? new[] { 'X', 'O' } : new[] { 'O', 'X' };
+            var order = rand.Next(2) == 0 ? new[] { 'C', 'O' } : new[] { 'O', 'C' };
             foreach (char c in order)
             {
                 grid[row, col] = c;

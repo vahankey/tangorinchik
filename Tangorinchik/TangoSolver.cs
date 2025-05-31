@@ -19,13 +19,13 @@ namespace Tangorinchik
             constraintsV = vConstraints;
         }
 
-        public bool Solve(int row = 0, int col = 0)
+        public int Solve(int row = 0, int col = 0)
         {
             if (row == Size)
             {
                 // Grid is fully filled
                 var validator = new GridValidator(grid, constraintsH, constraintsV);
-                return validator.IsFullValid();
+                return validator.IsFullValid() ? 1 : 0;
             }
 
             var nextRow = row;
@@ -42,20 +42,17 @@ namespace Tangorinchik
             }
             
             var solutionCount = 0;
-            foreach (char symbol in new char[] { 'X', 'O' })
+            foreach (char symbol in new char[] { 'C', 'O' })
             {
                 grid[row, col] = symbol;
                 var validator = new GridValidator(grid, constraintsH, constraintsV);
                 if (validator.IsPartialValid(row, col))
                 {
-                    if (Solve(nextRow, nextCol))
-                    {
-                        solutionCount++;
-                    }
+                    solutionCount += Solve(nextRow, nextCol);
                 }
                 grid[row, col] = ' ';
             }
-            return solutionCount == 1;
+            return solutionCount;
         }
     }
 }
