@@ -32,7 +32,8 @@ namespace Tangorinchik
             char[,] bestH = (char[,])constraintsH.Clone();
             char[,] bestV = (char[,])constraintsV.Clone();
 
-            var filledCellProbability = 40;
+            // Clear cells randomly
+            var filledCellProbability = 35;
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
@@ -46,23 +47,19 @@ namespace Tangorinchik
             {
                 for (int j = 0; j < Size - 1; j++)
                 {
+                    // Remove horizontal constraint
                     char backup = bestH[i, j];
                     bestH[i, j] = ' ';
                     var tempSolver = new TangoSolver(bestGrid, bestH, bestV);
                     if (!tempSolver.Solve())
                         bestH[i, j] = backup;
-                }
-            }
-
-            for (int i = 0; i < Size - 1; i++)
-            {
-                for (int j = 0; j < Size; j++)
-                {
-                    char backup = bestV[i, j];
-                    bestV[i, j] = ' ';
-                    var tempSolver = new TangoSolver(bestGrid, bestH, bestV);
+                    
+                    // Remove vertical constraint
+                    backup = bestV[j, i];
+                    bestV[j, i] = ' ';
+                    tempSolver = new TangoSolver(bestGrid, bestH, bestV);
                     if (!tempSolver.Solve())
-                        bestV[i, j] = backup;
+                        bestV[j, i] = backup;
                 }
             }
 

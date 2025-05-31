@@ -25,8 +25,15 @@ namespace Tangorinchik
         private char[,] GenerateFullSolution()
         {
             char[,] grid = new char[Size, Size];
+            for (int i = 0; i < Size; i++)
+                for (int j = 0; j < Size; j++)
+                    grid[i, j] = ' ';
             bool success = FillGrid(grid, 0, 0);
-            return success ? grid : throw new Exception("Failed to generate full solution.");
+            if (!success)
+            {
+                throw new Exception("Failed to generate full solution.");
+            }
+            return grid;
         }
 
         private bool FillGrid(char[,] grid, int row, int col)
@@ -39,40 +46,19 @@ namespace Tangorinchik
 
             if (row == Size) return true;
 
-            foreach (char c in rand.Next(2) == 0 ? new[] { 'X', 'O' } : new[] { 'O', 'X' })
+            var order = rand.Next(2) == 0 ? new[] { 'X', 'O' } : new[] { 'O', 'X' };
+            foreach (char c in order)
             {
                 grid[row, col] = c;
-                if (IsValid(grid, row, col))
+                var validator = new GridValidator(grid);
+                if (validator.IsPartialValid(row, col))
                 {
                     if (FillGrid(grid, row, col + 1))
                         return true;
                 }
             }
+            grid[row, col] = ' ';
             return false;
-        }
-
-        private bool IsValid(char[,] grid, int row, int col)
-        {
-            int xCountRow = 0, yCountRow = 0;
-            int xCountCol = 0, yCountCol = 0;
-
-            for (int i = 0; i < Size; i++)
-            {
-                if (grid[row, i] == 'X') xCountRow++;
-                if (grid[row, i] == 'O') yCountRow++;
-                if (grid[i, col] == 'X') xCountCol++;
-                if (grid[i, col] == 'O') yCountCol++;
-            }
-
-            if (xCountRow > 3 || yCountRow > 3 || xCountCol > 3 || yCountCol > 3)
-                return false;
-
-            if (col >= 2 && grid[row, col] == grid[row, col - 1] && grid[row, col] == grid[row, col - 2])
-                return false;
-            if (row >= 2 && grid[row, col] == grid[row - 1, col] && grid[row, col] == grid[row - 2, col])
-                return false;
-
-            return true;
         }
 
         private (char[,], char[,]) GenerateFullConstraints(char[,] grid)
