@@ -28,7 +28,7 @@ public class GridValidator
         {
             for (int j = 0; j < Size; j++)
             {
-                IsPartialValid(i, j);
+                if (!IsPartialValid(i, j)) return false;
             }
         }
 

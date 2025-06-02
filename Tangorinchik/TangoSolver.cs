@@ -37,9 +37,7 @@ namespace Tangorinchik
             }
 
             if (grid[row, col] != ' ')
-            {
                 return Solve(nextRow, nextCol);
-            }
             
             var solutionCount = 0;
             foreach (char symbol in new char[] { 'C', 'O' })
