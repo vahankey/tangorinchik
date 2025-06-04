@@ -5,7 +5,10 @@
         static void Main()
         {
             var game = new Game();
-            game.Play();
+            while (true)
+            {
+                game.Play();
+            }
         }
     }
 }

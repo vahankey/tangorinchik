@@ -6,31 +6,85 @@ namespace Tangorinchik
         private char[,] grid;
         private char[,] constraintsH;
         private char[,] constraintsV;
+        private char tmp = ' ';
+        private int? lastRow = null;
+        private int? lastCol = null;
+        private bool lastMoveValid = true;
+        private char[,] firstGrid;
 
         private Stack<char[,]> gridHistory;
         
         public void Play()
         {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("                      NEW GAME");
+            Console.WriteLine("    Easy[E]    Medium[M]    Hard[H]    Advanced[A]");
+            Console.Write("                       > ");
+            Console.ResetColor();
+            var filledPercentage = 0;
+            do
+            {
+                var inputLevel = Console.ReadLine()?.Trim().ToUpper();
+                if (inputLevel == null) continue;
+                Dictionary<string,int> LevelDifficulty = new Dictionary<string, int>
+                {
+                    { "E", 40 },
+                    { "M", 25 },
+                    { "H", 10 },
+                    { "A", 5 },
+                }; 
+                if (!LevelDifficulty.ContainsKey(inputLevel)) continue;
+                filledPercentage = LevelDifficulty[inputLevel];
+                break;
+            }
+            while (true);
+            
             var generator = new PuzzleGenerator();
-            (grid, var solution, constraintsH, constraintsV) = generator.Generate();
+            (grid, var solution, constraintsH, constraintsV) = generator.Generate(filledPercentage);
             gridHistory = new Stack<char[,]>();
-
+            firstGrid = (char[,])grid.Clone();
+            
             while (true)
             {
                 gridHistory.Push((char[,])grid.Clone());
 
                 Console.Clear();
+                Console.Write("                  ");
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine("TANGO PUZZLE GAME");
+                Console.ResetColor();
+                Console.WriteLine();
                 PrintGrid();
-
-                Console.Write("Enter row (1-6), col (1-6), symbol (C/O) [ U - undo ]: ");
-                var input = Console.ReadLine()?.Trim().ToUpper().Split();
-                if (input != null && input.Length == 1 && input[0] == "U")
+                Console.WriteLine();
+                
+                if (IsComplete(solution))
                 {
-                    gridHistory.Pop();
-                    grid = gridHistory.Pop();
-                    continue;
+                    Console.Write("                  ");
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine("Puzzle Solved!!!\n");
+                    Console.ResetColor();
+                    break;
                 }
+
+                Console.Write("Enter row (1-6), col (1-6), symbol (C/O) [ U - undo ] [R - restart]: ");
+                var input = Console.ReadLine()?.Trim().ToUpper().Split();
+                if (input != null && input.Length == 1)
+                {
+                    if (input[0] == "R")
+                    {
+                        Console.Clear();
+                        break;
+                    }
+                    else if (input[0] == "U")
+                    {
+                        gridHistory.Pop();
+                        grid = gridHistory.Pop();
+                        lastRow = null;
+                        lastCol = null;
+                        continue;
+                    }
+                }
+                
                 if (input == null || input.Length != 3
                     || !int.TryParse(input[0], out int row)
                     || !int.TryParse(input[1], out int col))
@@ -47,8 +101,16 @@ namespace Tangorinchik
                     Console.ReadKey();
                     continue;
                 }
+                
+                if (firstGrid[row, col] != ' ')
+                {
+                    Console.WriteLine("Selected cell value cannot be edited.");
+                    Console.ReadKey();
+                    continue;
+                }
 
                 char sym = input[2][0];
+                tmp = sym;
                 if (sym == '0') sym = 'O';
                 if (sym != 'C' && sym != 'O')
                 {
@@ -56,27 +118,24 @@ namespace Tangorinchik
                     Console.ReadKey();
                     continue;
                 }
+                
+                lastRow = row;
+                lastCol = col;
 
                 char oldSym = grid[row, col];
                 grid[row, col] = sym;
                 if (!IsValidMove(row, col))
                 {
+                    lastMoveValid = false;
                     Console.WriteLine("Invalid move.");
                     Console.ReadKey();
                     grid[row, col] = oldSym;
                     continue;
                 }
-
-                if (IsComplete(solution))
-                {
-                    Console.Clear();
-                    PrintGrid();
-                    Console.WriteLine("\nPuzzle Solved!");
-                    break;
-                }
+                lastMoveValid = true;
             }
         }
-
+        
         private bool IsValidMove(int row, int col)
         {
             char sym = grid[row, col];
@@ -147,27 +206,69 @@ namespace Tangorinchik
         private void PrintGrid()
         {
             // Print column numbers
-            Console.Write("   ");
+            Console.Write("        ");
             for (int j = 0; j < Size; j++)
-                Console.Write($"  {j + 1} ");
+                Console.Write($"   {j + 1}  ");
             Console.WriteLine();
             
             // Print hbar
-            Console.Write("   ");
-            Console.Write("╔═══");
+            Console.Write("        ");
+            Console.Write("╔═════");
             for (int j = 1; j < Size; j++)
-                Console.Write("╦═══");
+                Console.Write("╦═════");
             Console.WriteLine("╗");
 
             for (int i = 0; i < Size; i++)
             {
                 // Print row number
-                Console.Write($" {i + 1} ║");
+                Console.Write($"      {i + 1} ║");
                 
                 // Print values and horizontal constraints of current row
                 for (int j = 0; j < Size; j++)
                 {
-                    Console.Write($" {grid[i, j]} ");
+                    if (lastRow == i && lastCol == j)
+                    {
+                        if (lastMoveValid)
+                        {
+                            if (grid[i, j] == 'C')
+                            {
+                                Console.ForegroundColor = ConsoleColor.DarkBlue;
+                            }
+                            else if (grid[i, j] == 'O')
+                            {
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                            }
+                            Console.Write($"  {grid[i, j]}  ");
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write($"  {tmp}  ");
+                            gridHistory.Pop();
+                        }
+                        
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        if (grid[i, j] == 'C')
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkBlue;
+                        }
+                        else if (grid[i, j] == 'O')
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                        }
+
+                        if (grid[i, j] == firstGrid[i, j] && grid[i, j] != ' ')
+                        {
+                            Console.Write("\x1b[48;2;44;44;44m");
+                        }
+                        
+                        Console.Write($"  {grid[i, j]}  ");
+                        Console.ResetColor();
+                    }
+                    
                     if (j < Size - 1)
                     {
                         char c = constraintsH[i, j];
@@ -183,25 +284,25 @@ namespace Tangorinchik
                 // Print vertical constraints
                 if (i < Size - 1)
                 {
-                    Console.Write("   ");
+                    Console.Write("        ");
                     for (var j = 0; j < Size; j++)
                     {
                         Console.Write(j != 0 ? "╬" : "╠");
                         char c = constraintsV[i, j];
                         if (c == ' ')
-                            Console.Write($"═══");
+                            Console.Write($"═════");
                         else
-                            Console.Write($" {c} ");
+                            Console.Write($"  {c}  ");
                     }
                     Console.WriteLine("╣");
                 }
             }
             
             // Print hbar
-            Console.Write("   ");
-            Console.Write("╚═══");
+            Console.Write("        ");
+            Console.Write("╚═════");
             for (int j = 1; j < Size; j++)
-                Console.Write("╩═══");
+                Console.Write("╩═════");
             Console.WriteLine("╝");
         }
     }

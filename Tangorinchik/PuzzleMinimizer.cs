@@ -20,7 +20,7 @@ namespace Tangorinchik
             this.constraintsV = (char[,])v.Clone();
         }
 
-        public (char[,], char[,], char[,]) Minimize()
+        public (char[,], char[,], char[,]) Minimize(int filledPercentage)
         {
             var solver = new TangoSolver(grid, constraintsH, constraintsV);
             if (solver.Solve() != 1)
@@ -33,14 +33,22 @@ namespace Tangorinchik
             char[,] bestV = (char[,])constraintsV.Clone();
 
             // Clear cells randomly
-            var filledCellProbability = 35;
+            var filledCellCount = 0;
             for (int i = 0; i < Size; i++)
             {
                 for (int j = 0; j < Size; j++)
                 {
-                    if (!GetRandomWithProbability(filledCellProbability, 100))
+                    if (!GetRandomWithProbability(filledPercentage, 100))
                         bestGrid[i, j] = ' ';
+                    else filledCellCount++;
                 }
+            }
+
+            if (filledCellCount == 0)
+            {
+                int i = rand.Next(0, Size);
+                int j = rand.Next(0, Size);
+                bestGrid[i, j] = grid[i, j];
             }
 
             for (int i = 0; i < Size; i++)
@@ -62,7 +70,7 @@ namespace Tangorinchik
                         bestV[j, i] = backup;
                 }
             }
-
+            
             return (bestGrid, bestH, bestV);
         }
     }

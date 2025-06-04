@@ -5,7 +5,7 @@ namespace Tangorinchik
         private readonly int Size = 6;
         private Random rand = new Random();
 
-        public (char[,], char[,], char[,], char[,]) Generate()
+        public (char[,], char[,], char[,], char[,]) Generate(int filledPercentage = 40)
         {
             while (true)
             {
@@ -17,7 +17,7 @@ namespace Tangorinchik
                     continue;
                 
                 var minimizer = new PuzzleMinimizer(fullGrid, constraintsH, constraintsV);
-                var (minGrid, minH, minV) = minimizer.Minimize();
+                var (minGrid, minH, minV) = minimizer.Minimize(filledPercentage);
                 return (minGrid, fullGrid, minH, minV);
             }
         }
